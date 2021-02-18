@@ -66,7 +66,11 @@ FORMATS['5x3'] = INDEX
 FORMATS['3x5'] = INDEX
 FORMATS['c'] = INDEX
 
-format = FORMATS[args['format'] || args['f'] || 'index']
+k = args['format'] || args['f'] || 'index'
+format = FORMATS[k]
+
+fail "No format keyed under #{k.inspect}" unless format
+
 out = args['out'] || args['o'] || 'out.pdf'
 dir = args['dir'] || '.'
 
@@ -109,21 +113,27 @@ lines.shift while lines.first == ''
 
 plines = lines
   .inject([]) { |a, line|
-    loop do
-      l = line[0, format.width]
-      line = line[format.width..-1]
-      a << l
-      break unless line
+    l = ''
+    line.scan(/\s+|[^\s]+/) do |r|
+      if l.length + r.length > format.width
+        a << l
+        l = r.strip
+      else
+        l += r
+      end
     end
+    a << l
     a }
 
 if args['raw']
 
   puts plines
+
   exit 0
 end
 
 plines.each_with_index do |line, i|
+
   c.text(line, at: [ X0, Y0 - i * format.lheight ])
 end
 
