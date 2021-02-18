@@ -68,7 +68,7 @@ page = doc.pages.add
 c = page.canvas
 
 X0 = 10
-Y0 = 800
+Y0 = 820
 
 c.font(format.font, size: format.fsize).fill_color(0, 0, 0)
 
@@ -85,6 +85,27 @@ if args['ruler']
   doc.write(out)
 
   exit 0
+end
+
+lines = args[:fnames]
+  .inject([]) { |a, fname|
+    path = fname.match?(/^\//) ? fname : File.join(dir, fname)
+    a.concat((File.readlines(path) rescue [])) }
+  .collect(&:rstrip)
+lines.shift while lines.first == ''
+
+plines = lines
+  .inject([]) { |a, line|
+    loop do
+      l = line[0, format.width]
+      line = line[format.width..-1]
+      a << l
+      break unless line
+    end
+    a }
+
+plines.each_with_index do |line, i|
+  c.text(line, at: [ X0, Y0 - i * format.lheight ])
 end
 
 doc.write(out)
