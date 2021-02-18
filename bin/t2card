@@ -1,0 +1,8 @@
+#!/bin/sh
+
+D=$(pwd)
+SELF=$(readlink -f "$0")
+BASEDIR=$(dirname "$SELF")
+
+cd $BASEDIR/.. && bundle exec ruby lib/t2card.rb --dir "$D" "$@"
+
