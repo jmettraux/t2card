@@ -1,11 +1,18 @@
 
+NO_VALUE_ARGS = %w[ raw ]
+
 args = { fnames: [] }
   key = nil
   ARGV.each do |a|
     case a
     when /^-{1,2}(.+)$/
       args[key] = true if key
-      key = $1
+      if NO_VALUE_ARGS.include?($1)
+        args[$1] = true
+        key = nil
+      else
+        key = $1
+      end
     else
       if key == nil
         args[:fnames] << a
@@ -17,7 +24,9 @@ args = { fnames: [] }
   end
   args[key] = true if key
 
+
 if args['h'] || args['help']
+
   puts
   puts "Usage: t2card [OPTIONS] [FILE]"
   puts
@@ -43,6 +52,7 @@ if args['h'] || args['help']
   puts "  -h"
   puts "  --help             Print this help"
   puts
+
   exit 0
 end
 
@@ -84,7 +94,7 @@ doc = HexaPDF::Document.new
 page = doc.pages.add
 c = page.canvas
 
-X0 = 10
+X0 =  10
 Y0 = 820
 
 c.font(format.font, size: format.fsize).fill_color(0, 0, 0)
