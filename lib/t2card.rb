@@ -21,14 +21,27 @@ if args['h'] || args['help']
   puts
   puts "Usage: t2card [OPTIONS] [FILE]"
   puts
+  puts "  Reads a text file and formats it as a PDF that, when printed"
+  puts "  fits a given index card size"
+  puts
   puts "Options:"
   puts
-  puts "  -f k       "
-  puts "  -f b6      "
-  puts "  -f kyodai  Kyōto Daigaku B6 index card"
-  puts "  -f c       "
-  puts "  -f 5x3     "
-  puts "  -f index   Index Card 3x5 inches (default)"
+  puts "  -f k"
+  puts "  -f b6"
+  puts "  -f kyodai          Kyōto Daigaku B6 index card"
+  puts "  -f c"
+  puts "  -f 5x3"
+  puts "  -f index           Index Card 3x5 inches (default)"
+  puts
+  puts "  --raw              Print the formatted lines to STDOUT and exits"
+  puts
+  puts "  --dir path/to/dir  Changes the working directory"
+  puts
+  puts "  -o {FILE}"
+  puts "  -out {FILE}        changes the output file (defaults to ./out.pdf)"
+  puts
+  puts "  -h"
+  puts "  --help             Print this help"
   puts
   exit 0
 end
@@ -103,6 +116,12 @@ plines = lines
       break unless line
     end
     a }
+
+if args['raw']
+
+  puts plines
+  exit 0
+end
 
 plines.each_with_index do |line, i|
   c.text(line, at: [ X0, Y0 - i * format.lheight ])
