@@ -144,7 +144,11 @@ end
 
 plines.each_with_index do |line, i|
 
-  c.text(line, at: [ X0, Y0 - i * format.lheight ])
+  y = Y0 - i * format.lheight
+
+  break if y < 28
+
+  c.text(line, at: [ X0, y ])
 end
 
 doc.write(out)
