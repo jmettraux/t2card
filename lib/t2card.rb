@@ -1,31 +1,18 @@
 
-NO_VALUE_ARGS = %w[ raw ]
+VALUE_ARGS = %w[ dir o out ]
 
 args = { fnames: [] }
-  key = nil
-  ARGV.each do |a|
+  as = ARGV.dup
+  while a = as.shift
     case a
-    when /^-{1,2}(.+)$/
-      args[key] = true if key
-      if NO_VALUE_ARGS.include?($1)
-        args[$1] = true
-        key = nil
-      else
-        key = $1
-      end
+    when /^--?(.+)$/
+      args[$1.to_sym] = VALUE_ARGS.include?($1) ? as.shift : true
     else
-      if key == nil
-        args[:fnames] << a
-      else
-        args[key] = a
-        key = nil
-      end
+      args[:fnames] << a
     end
   end
-  args[key] = true if key
 
-
-if args['h'] || args['help']
+if args[:h] || args[:help]
 
   puts
   puts "Usage: t2card [OPTIONS] [FILE]"
@@ -35,16 +22,17 @@ if args['h'] || args['help']
   puts
   puts "Options:"
   puts
-  puts "  -f k"
-  puts "  -f b6"
-  puts "  -f kyodai          Kyōto Daigaku B6 index card"
-  puts "  -f c"
-  puts "  -f 5x3"
-  puts "  -f index           Index Card 3x5 inches (default)"
+  puts "  -k"
+  puts "  -b6"
+  puts "  --kyodai           Kyōto Daigaku B6 index card"
+  puts "  -i"
+  puts "  --index            Index Card 3x5 inches (default)"
   puts
   puts "  --raw              Print the formatted lines to STDOUT and exits"
   puts
   puts "  --dir path/to/dir  Changes the working directory"
+  puts
+  puts "  --ruler            Prints a ruler (horizontal and vertical)"
   puts
   puts "  -o {FILE}"
   puts "  -out {FILE}        changes the output file (defaults to ./out.pdf)"
@@ -72,17 +60,15 @@ FORMATS['kyodai'] = KYODAI
 FORMATS['b6'] = KYODAI
 FORMATS['k'] = KYODAI
 FORMATS['index'] = INDEX
-FORMATS['5x3'] = INDEX
-FORMATS['3x5'] = INDEX
-FORMATS['c'] = INDEX
+FORMATS['i'] = INDEX
 
-k = args['format'] || args['f'] || 'index'
+k = args.keys.find { |k| FORMATS.keys.include?(k.to_s) }.to_s
 format = FORMATS[k]
 
 fail "No format keyed under #{k.inspect}" unless format
 
-out = args['out'] || args['o'] || 'out.pdf'
-dir = args['dir'] || '.'
+out = args[:out] || args[:o] || 'out.pdf'
+dir = args[:dir] || '.'
 
 out = File.join(dir, out) if ! out.match(/^\//)
 
@@ -99,7 +85,7 @@ Y0 = 820
 
 c.font(format.font, size: format.fsize).fill_color(0, 0, 0)
 
-if args['ruler']
+if args[:ruler]
 
   s = ([ '0123456789' ] * 10).join('')
   c.text(s[0, format.width], at: [ X0, Y0 ])
@@ -135,7 +121,7 @@ plines = lines
     a << l
     a }
 
-if args['raw']
+if args[:raw]
 
   puts plines
 
